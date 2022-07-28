@@ -90,17 +90,23 @@ class SanbornScrapy(scrapy.Spider):
         item = {}
         item['Date'] = datetime.datetime.now().strftime("%d/%m/%Y")
         item['Canal'] = "Sanborns"
-        item['Category'] = response.xpath('//div[@class="breadcrumb"]/a[1]/text()').get()
-        item['Subcategory'] = response.xpath('//div[@class="breadcrumb"]/a[2]/text()').get()
-        item['Subcategory2'] = response.xpath('//div[@class="breadcrumb"]/a[3]/text()').get()
-        item['Subcategory3'] = ""
+        xp = [x.get('name') for x in product_json.get('data',{}).get('categories')]
+        xp.reverse()
+        xp_dict = {xp.index(x):x for x in xp}
+        item['Category'] = xp_dict.get(0)
+        item['Subcategory'] = xp_dict.get(1)
+        item['Subcategory2'] = xp_dict.get(2)
+        item['Subcategory3'] = xp_dict.get(3)
         item['Marca'] = product_json.get('data',{}).get('brand')
-        item['Modelo'] = product_json.get('data',{}).get('model')
+        item['Modelo'] = product_json.get('data',{}).get('attributes',{}).get('modelo')
         item['SKU'] = product_json.get('data',{}).get('sku')
         item['UPC'] = product_json.get('data',{}).get('ean')
+        description = product_json.get('data',{}).get('description')
+        attributes = product_json.get('data',{}).get('attributes')
         item['Item'] = product_json.get('data',{}).get('title')
-        item['Item Characteristics'] = product_json.get('data',{}).get('description')
+        item['Item Characteristics'] = {'Descripción': description, 'Especificaciones': attributes}
         product_id = product_json.get('data',{}).get('id')
+        breakpoint()
         item['URL SKU'] = f"https://www.sanborns.com.mx/producto/{product_id}/{product_json.get('data',{}).get('title_seo')}"
         try:
             item['Image'] = ','.join([image_product['url'] for image_product in product_json.get('data',{}).get('images')])
