@@ -1,0 +1,1 @@
+scrapy crawl sanborn -o sanborn_categories_all.json

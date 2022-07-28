@@ -106,12 +106,11 @@ class SanbornScrapy(scrapy.Spider):
         item['Item'] = product_json.get('data',{}).get('title')
         item['Item Characteristics'] = {'Descripción': description, 'Especificaciones': attributes}
         product_id = product_json.get('data',{}).get('id')
-        breakpoint()
         item['URL SKU'] = f"https://www.sanborns.com.mx/producto/{product_id}/{product_json.get('data',{}).get('title_seo')}"
         try:
             item['Image'] = ','.join([image_product['url'] for image_product in product_json.get('data',{}).get('images')])
         except:
-            breakpoint()
+            item['Image'] = ''
         item['Price'] = product_json.get('data',{}).get('price')
         item['Sale Price'] = product_json.get('data',{}).get('sale_price')
         item['Shipment Cost'] = ""
@@ -121,5 +120,5 @@ class SanbornScrapy(scrapy.Spider):
         item['Store Address'] = ""
         item['Stock'] = product_json.get('data',{}).get('stock')
         item['UPC WM'] = product_json.get('data',{}).get('ean')[0:-1].zfill(16)
-        item['Final Price'] = min(item['Price'], item['Sale Price'])
+        item['Final Price'] = min(item['Price'], item['Sale Price']) if item['Sale Price'] else item['Price']
         yield item
