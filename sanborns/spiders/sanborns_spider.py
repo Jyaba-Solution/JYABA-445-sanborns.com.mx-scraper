@@ -87,38 +87,43 @@ class SanbornScrapy(scrapy.Spider):
 
     def parse_product(self, response):
         product_json = response.json()
-        item = {}
-        item['Date'] = datetime.datetime.now().strftime("%d/%m/%Y")
-        item['Canal'] = "Sanborns"
-        xp = [x.get('name') for x in product_json.get('data',{}).get('categories')]
-        xp.reverse()
-        xp_dict = {xp.index(x):x for x in xp}
-        item['Category'] = xp_dict.get(0)
-        item['Subcategory'] = xp_dict.get(1)
-        item['Subcategory2'] = xp_dict.get(2)
-        item['Subcategory3'] = xp_dict.get(3)
-        item['Marca'] = product_json.get('data',{}).get('brand')
-        item['Modelo'] = product_json.get('data',{}).get('attributes',{}).get('modelo')
-        item['SKU'] = product_json.get('data',{}).get('sku')
-        item['UPC'] = product_json.get('data',{}).get('ean')
-        description = product_json.get('data',{}).get('description')
-        attributes = product_json.get('data',{}).get('attributes')
-        item['Item'] = product_json.get('data',{}).get('title')
-        item['Item Characteristics'] = {'Descripción': description, 'Especificaciones': attributes}
-        product_id = product_json.get('data',{}).get('id')
-        item['URL SKU'] = f"https://www.sanborns.com.mx/producto/{product_id}/{product_json.get('data',{}).get('title_seo')}"
         try:
-            item['Image'] = ','.join([image_product['url'] for image_product in product_json.get('data',{}).get('images')])
-        except:
-            item['Image'] = ''
-        item['Price'] = product_json.get('data',{}).get('price')
-        item['Sale Price'] = product_json.get('data',{}).get('sale_price')
-        item['Shipment Cost'] = ""
-        item['Sales Flag'] = product_json.get('data',{}).get('discount')
-        item['Store ID'] = ""
-        item['Store Name'] = ""
-        item['Store Address'] = ""
-        item['Stock'] = product_json.get('data',{}).get('stock')
-        item['UPC WM'] = product_json.get('data',{}).get('ean')[0:-1].zfill(16)
-        item['Final Price'] = min(item['Price'], item['Sale Price']) if item['Sale Price'] else item['Price']
-        yield item
+            item = {}
+            item['Date'] = datetime.datetime.now().strftime("%d/%m/%Y")
+            item['Canal'] = "Sanborns"
+            xp = [x.get('name') for x in product_json.get('data',{}).get('categories')]
+            xp.reverse()
+            xp_dict = {xp.index(x):x for x in xp}
+            item['Category'] = xp_dict.get(0)
+            item['Subcategory'] = xp_dict.get(1)
+            item['Subcategory2'] = xp_dict.get(2)
+            item['Subcategory3'] = xp_dict.get(3)
+            item['Marca'] = product_json.get('data',{}).get('brand')
+            item['Modelo'] = product_json.get('data',{}).get('attributes',{}).get('modelo') if product_json.get('data',{}).get('attributes',{}) else ''
+            item['SKU'] = product_json.get('data',{}).get('sku')
+            item['UPC'] = product_json.get('data',{}).get('ean')
+            description = product_json.get('data',{}).get('description')
+            attributes = product_json.get('data',{}).get('attributes')
+            item['Item'] = product_json.get('data',{}).get('title')
+            item['Item Characteristics'] = {'Descripción': description, 'Especificaciones': attributes}
+            product_id = product_json.get('data',{}).get('id')
+            item['URL SKU'] = f"https://www.sanborns.com.mx/producto/{product_id}/{product_json.get('data',{}).get('title_seo')}"
+            try:
+                item['Image'] = ','.join([image_product['url'] for image_product in product_json.get('data',{}).get('images')])
+            except:
+                item['Image'] = ''
+            item['Price'] = product_json.get('data',{}).get('price')
+            item['Sale Price'] = product_json.get('data',{}).get('sale_price')
+            item['Shipment Cost'] = ""
+            item['Sales Flag'] = product_json.get('data',{}).get('discount')
+            item['Store ID'] = ""
+            item['Store Name'] = ""
+            item['Store Address'] = ""
+            item['Stock'] = product_json.get('data',{}).get('stock')
+            item['UPC WM'] = product_json.get('data',{}).get('ean')[0:-1].zfill(16)
+            item['Final Price'] = min(item['Price'], item['Sale Price']) if item['Sale Price'] else item['Price']
+            yield item
+        except Exception as e:
+            print(e)
+            with open('log.txt', 'a') as f:
+                f.write(f"{response.url}\n")
