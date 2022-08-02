@@ -54,8 +54,8 @@ Final Price == min (price, sale price).
 class SanbornScrapy(scrapy.Spider):
     name = "sanborn"
     def start_requests(self):
-        #categories_list = [10,12,2,5,13,4,14,6,1,16,7]
-        categories_list = [7]
+        categories_list = [10,12,2,5,13,4,14,6,1,16,7]
+        #categories_list = [7]
         urls = [f"https://snapi.sanborns.com.mx/anteater/search?cliente=sanborns_2&proxystylesheet=xml2json&oe=UTF-8&getfields=*&sort=&start=0&num=100&requiredfields=&requiredobjects=categories->id:{x}&ds=marcas:attribute_marca:0:0:200:1:0.sale_precio:sale_price:1:1:1000.ranking:review:0:0:8:0:1.full:fulfillment:0:0:8:0:1.free:shipping_price:0:0:8:0:1.discount:discount:0:0:1000:0:1&do=breadcrumbs:breadcrumbs:id,name,padre:100:1" for x in categories_list]
         for url in urls:
             yield scrapy.Request(url=url, dont_filter=True, callback=self.parse_categories, meta={'start_page': 0, 'url': url})
